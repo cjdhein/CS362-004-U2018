@@ -1,16 +1,15 @@
 /*
- * randomtestadventurer.c
+ * randomtestcard2.c
  *
- * Card being tested:	Adventurer
+ * Card being tested:	Village
  *
- * Card's Function:		Draw cards from deck until 2 treasure cards are revealed.
- *					Place them in your hand and discard the other revealed cards.
+ * Card's Function:		Draws a single card and gives player 2 additional actions.
  *
  * 
  * Include in makefile:
  *
- * randomtestadventurer: randomtestadventurer.c dominion.o rngs.o testutils.o
- *      gcc -o randomtestadventurer -g randomtestadventurer.c dominion.o rngs.o testutils.o $(CFLAGS)
+ * randomtestcard2: randomtestcard2.c dominion.o rngs.o testutils.o
+ *      gcc -o randomtestcard2 -g randomtestcard2.c dominion.o rngs.o testutils.o $(CFLAGS)
  *
  */
 
@@ -39,12 +38,21 @@ void runTests(int* testResults);
 int main(int argc, char *argv[]) {
 	srand(time(0));
 
+	printf("Testing Village\n");
+	printf("0: Good return on cardEffect\n");
+	printf("1: Check for memory changes to players\n");
+	printf("2: Check if player has same number of cards total\n");
+	printf("3: Check if discard works\n");
+	printf("4: Check if action count increased by 2\n");
+	printf("5: Check if card was drawn properly\n");
+	printf("6: Confirm supply did not change\n");
+	printf("7: Check for score not changing\n\n");
+
 	int* testResults = malloc(sizeof(int) * TEST_COUNT);
 	memset(testResults,0,sizeof(int) * TEST_COUNT);
 
 	for(int count = 0; count < TEST_ITERATIONS; count++) {
 		runTests(testResults);
-
 	}
 
 	printf("All tests complete.\n");
@@ -78,15 +86,15 @@ void runTests(int* testResults){
 
 	int testFail = 0;
 
-	int adventurerPos;
+	int villagePos;
 	int preCardCount;
 	int cardCount;
 
 	struct gameState *game = newGame();
 	struct gameState *pre = newGame();
 
-	adventurerPos = resetForRandTest(game, pre, adventurer);
-	ret = cardEffect(adventurer,-1,-1,-1,game,adventurerPos,NULL);
+	villagePos = resetForRandTest(game, pre, village);
+	ret = cardEffect(village,-1,-1,-1,game,villagePos,NULL);
 #if NOISY_TEST
 		printf("\nTest 0 - Checking good return on cardEffect...\n");
 #endif	
@@ -122,7 +130,7 @@ void runTests(int* testResults){
 	assertRes=assertLite(__LINE__,preCardCount,cardCount,1,NOISY_TEST);	
 	if(assertRes){testResults[2] += 1;}
 
-	// test 3 - is adventurer card discarded properly?
+	// test 3 - is village card discarded properly?
 	//	- card leaves hand
 	//	- card ends up in discard
 	
@@ -132,57 +140,62 @@ void runTests(int* testResults){
 	assertRes=assertLite(__LINE__,(game->discardCount[game->whoseTurn] - pre->discardCount[pre->whoseTurn]),1,1,NOISY_TEST); // assert new discardCount - old is equal to 1
 	if(assertRes){testFail = 1;}
 #if NOISY_TEST
-	printf("\nTest 3: Checking if adventurer is the latest card in discard\n");
+	printf("\nTest 3: Checking if village is the latest card in discard\n");
 #endif
-	assertRes=assertLite(__LINE__,(game->discard[game->whoseTurn][game->discardCount[game->whoseTurn]-1]),adventurer,1,NOISY_TEST); // assert the latest card in the discard pile is adventurer
+	assertRes=assertLite(__LINE__,(game->discard[game->whoseTurn][game->discardCount[game->whoseTurn]-1]),village,1,NOISY_TEST); // assert the latest card in the discard pile is village
 	if(assertRes){testFail = 1;}
 
 #if NOISY_TEST
-		printf("\nTest 3: Checking if adventurer is still in hand\n");
+		printf("\nTest 3: Checking if village is still in hand\n");
 #endif
-	assertRes=assertLite(__LINE__,(game->hand[game->whoseTurn][adventurerPos]),adventurer,0,NOISY_TEST); // confirm adventurer is no longer in the hand
+	assertRes=assertLite(__LINE__,(game->hand[game->whoseTurn][villagePos]),village,0,NOISY_TEST); // confirm village is no longer in the hand
 	if(assertRes){testFail = 1;}
 
 	testResults[3] += testFail;
 	testFail = 0;
 
-	// test 4 - were two treasure cards added to player's hand?
-	//	- handCount up by one (account for discarding adventurer)
-	//	- count of old treasure cards is two less than count of new
+	// test 4 - was the player's action count increased by 2?
 
 #if NOISY_TEST
-	printf("\nTest 4: Checking if handcount up by one\n");
+		printf("\nTest 4: Checking if numActions increased by 2...\n");
 #endif
-	assertRes=assertLite(__LINE__,(game->handCount[game->whoseTurn] - pre->handCount[pre->whoseTurn]),1,1,NOISY_TEST);
+	assertRes=assertLite(__LINE__,(game->numActions - pre->numActions),2,1,NOISY_TEST);
 	if(assertRes){testFail = 1;}
-#if NOISY_TEST
-	printf("\nTest 4: Checking if count of treasures is up by 2\n");
-#endif
-
-	assertRes = assertLite(__LINE__,countTreasure(game) - countTreasure(pre),2,1,NOISY_TEST);
-
-	if(assertRes){testFail = 1;}
- 
 	testResults[4] += testFail;
 	testFail = 0;
+	// test 5 - was a card added to the hand and removed from the deck
+	//	- deckCount drops by 1 card
+	//	- handCount stays the same (accounting for village being removed)
 
-	
-	// test 5 - ensure supply was not affected
+#if NOISY_TEST
+	printf("\nTest 5: Checking for deckCount decrease by one...\n");
+#endif
+	assertRes = assertLite(__LINE__,(pre->deckCount[0] - game->deckCount[0]),1,1, NOISY_TEST);
+	if(assertRes){testFail = 1;}	
+#if NOISY_TEST
+	printf("\nTest 5: Checking for handCount increase by zero...\n");
+#endif
+	assertRes = assertLite(__LINE__,(game->handCount[0] - pre->handCount[0]),0,1, NOISY_TEST);
+	if(assertRes){testFail = 1;}
+	testResults[5] += testFail;
+	testFail = 0;
+
+	// test 6 - ensure supply was not affected
 	// memory state of supply is same now as before
 
 #if NOISY_TEST
-	printf("\nTest 5: Checking for no change in supply...\n");
+	printf("\nTest 6: Checking for no change in supply...\n");
 #endif
 	assertRes=assertLite(__LINE__,memcmp(game->supplyCount,pre->supplyCount,(sizeof(int)*(treasure_map+1))),0,1,NOISY_TEST);
 
-	testResults[5] += assertRes;
+	testResults[6] += assertRes;
 	// test 6 - confirm scores for all players are unchanged
 
 	int preScore;
 	int postScore;
-	for(int i = 0; i < game->numPlayers; i++) {
+	for(int i = 0; i < 4;i++) {
 #if NOISY_TEST
-		printf("\nTest 6: Checking score unchanged for player %d.\n",i+1);
+		printf("\nTest 7: Checking score unchanged for player %d.\n",i+1);
 #endif
 		preScore = scoreFor(i,pre);
 		postScore = scoreFor(i,game);
@@ -191,9 +204,10 @@ void runTests(int* testResults){
 		if(assertRes){testFail = 1;}
 	}
 
-	testResults[6] += testFail;
+	testResults[7] += testFail;
 
 	free(game);
 	free(pre);
+
 }
 

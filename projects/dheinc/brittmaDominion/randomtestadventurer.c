@@ -31,13 +31,22 @@
 #define TEST_COUNT 7
 
 // number of iterations
-#define TEST_ITERATIONS 32000
+#define TEST_ITERATIONS 30000
 
 int countTreasure(struct gameState *game);
 void runTests(int* testResults);
 
 int main(int argc, char *argv[]) {
 	srand(time(0));
+
+	printf("Testing Adventurer\n");
+	printf("0: Good return on cardEffect\n");
+	printf("1: Check for memory changes to players\n");
+	printf("2: Check if player has same number of cards total\n");
+	printf("3: Check if discard works\n");
+	printf("4: Check if 2 treasure cards added\n");
+	printf("5: Confirm supply did not change\n");
+	printf("6: Check for score not changing\n\n");
 
 	int* testResults = malloc(sizeof(int) * TEST_COUNT);
 	memset(testResults,0,sizeof(int) * TEST_COUNT);
@@ -195,5 +204,6 @@ void runTests(int* testResults){
 
 	free(game);
 	free(pre);
+
 }
 
