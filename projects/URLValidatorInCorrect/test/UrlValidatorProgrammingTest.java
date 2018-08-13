@@ -15,7 +15,7 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-public class UrlValidatorTest2 extends TestCase {
+public class UrlValidatorProgrammingTest extends TestCase {
 	
 	// use these booleans to turn off generation of individual test data
 	// (used for testing test function)
@@ -1752,7 +1752,7 @@ public class UrlValidatorTest2 extends TestCase {
 	// NO_FRAGMENTS = 4, 7, 9, 10, 12, 13, 14, 15
 	
 	
-	 public UrlValidatorTest2(String testName) {
+	 public UrlValidatorProgrammingTest(String testName) {
 		      super(testName);
 		   }
 	

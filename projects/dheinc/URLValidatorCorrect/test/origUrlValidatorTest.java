@@ -22,12 +22,12 @@ import junit.framework.TestCase;
  *
  * @version $Revision: 1739358 $
  */
-public class UrlValidatorTest extends TestCase {
+public class origUrlValidatorTest extends TestCase {
 
    private final boolean printStatus = false;
    private final boolean printIndex = false;//print index that indicates current scheme,host,port,path, query test were using.
 
-   public UrlValidatorTest(String testName) {
+   public origUrlValidatorTest(String testName) {
       super(testName);
    }
 
@@ -185,7 +185,7 @@ protected void setUp() {
     */
    public static void main(String[] argv) {
 
-	   UrlValidatorTest fct = new UrlValidatorTest("url test");
+	   origUrlValidatorTest fct = new origUrlValidatorTest("url test");
       fct.setUp();
       fct.testIsValid();
       fct.testIsValidScheme();
